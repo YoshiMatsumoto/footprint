@@ -1,51 +1,20 @@
-#install.packages("spatialEco")
-
-#ライブラリの導入
 library(spatialEco)
-library(jsonlite)
+library(raster)
 
-#xの取得（DepthMapデータ)
-x <- read.csv("Agent_Analysis.csv")
-x <- x$Gate.Counts
+x <- raster(file.path("Unity_Foot.tif"))
+y <- raster(file.path("Depthmap_Foot.tif"))
+dim(x)
+dim(y)
 
-#yの取得（Unityデータ)
-y <- read.csv("FootPrint.csv")
-# nrow(y)
-# ncol(y)
+r.cor <- rasterCorrelation(x, y, s = 5, type = "spearman")
+s <- raster(nrow=1027, ncol=646)
+s <- resample(r.cor, s, method='bilinear')
 
-#x座標の作成
-coX1 <- data.frame(coX = 1:ncol(y))
-coX2 <- data.frame(coX = 1:ncol(y))
-for(i in 2:nrow(y)){
-    coX1 <- cbind(coX1, coX2)
-}
+corValue <- values(s)
+length(corValue)
 
-coX1 <- flatten(coX1)
-head(coX1)
-#y座標の作成
-coY1 <- data.frame(coY = 1:nrow(y))
-coY2 <- data.frame(coY = 1:nrow(y))
-for(i in 2:ncol(y)){
-    coY1 <- rbind(coY1, coY2)
-}
+write.csv(corValue, file = "corValue.csv")
 
-#点座標の作成
-co = cbind(coX1, coY1)
-#xのデータリファイン
-x <- gsub(-1, 0, x)
-
-#yのリスト化解除
-y <- unlist(y)
-co <- unlist(co)
-
-coFoot <- cbind(y, co)
-#write.csv(coFoot, file = "coFoot.csv")
-#要素数の確認
-# length(x)
-# length(y)
-
-# showClass(x)
-# showClass(y)
-
-# r.cor <- rasterCorrelation(x, y, s = 5, type = "spearman")
-# plot(r.cor)
+# cor(values(x),
+#     values(y),
+#     use = "na.or.complete")
