@@ -57,6 +57,6 @@ print("Preprocessing is finished")
 bw <- gwr.sel(AA ~ UNITY , data=pt, coords=cbind(pt$LON, pt$LAT))
 bw
 
-# gauss <- gwr(AA ~ UNITY, data=pt,coords=co, bandwidth=bw)
-# gauss
+gauss <- gwr(AA ~ UNITY, data=pt,coords=coords=cbind(pt$LON, pt$LAT), bandwidth=bw)
+gauss
 print("fin")
