@@ -2,28 +2,6 @@ library(spatialEco)
 library(raster)
 # library(spgwr)
 
-################
-### 関数の定義箇所
-################
-makeCo<- function(dimx, dimy) {
-    #x座標の作成
-    coX1 <- data.frame(LON = rep(1, each = dimy))
-    for(i in 2:dimx){
-        coX2 <- data.frame(LON = rep(i, each = dimy))
-        coX1 <- rbind(coX1, coX2)
-    }
-
-    #y座標の作成
-    coY1 <- data.frame(LAT = dimy:1)
-    coY2 <- data.frame(LAT = dimy:1)
-    for(i in 2:dimx){
-        coY1 <- rbind(coY1, coY2)
-    }
-
-    #点座標の作成
-    co = cbind(coX1, coY1)
-    return(co)
-}
 
 gridcorts <- function(rasterstack, method, type=c("corel","pval","both")){
   # Values for (layers, ncell, ncol, nrow, method, crs, extent) come straight from the input raster stack
@@ -103,66 +81,24 @@ gridcorts <- function(rasterstack, method, type=c("corel","pval","both")){
 }
 
 #ラスタ画像の読み取り
-# A <- raster(file.path("Unity.grd"))
-# B <- raster(file.path("Dep.grd"))
-
 A <- raster(file.path("Depthmap_Foot.tif"))
 B <- raster(file.path("Unity_Foot.tif"))
 
+#ラスタ画像の範囲を合わせる
+extent(A) <- c(1, 647, 1, 1027)
 
+#ラスタ画像の範囲の確認
+extent(A)
+extent(B)
 
-a <- rasterCorrelation(A, B, s = 5, type = "spearman")
+# rstack <- stack(A,B)
+# cg1 <- gridcorts(rasterstack = rstack, method = "spearman", type = "both")
+# plot(cg1)
+a<-stack(A, B)
+layerStats(a, 'pearson',na.rm=T)
 
-plot(a)
-# UNITY <- values(A)
-# AA <- values(B)
-# AA <- replace(AA, AA<0, 0)
-
-
-# id <- 1:length(AA)
-
-# UNITY <- cbind(id, UNITY)
-# AA <- cbind(id, AA)
-
-# #大きさを取得
-# dimA <- dim(A)
-# dimB <- dim(B)
-
-
-
-# #座標の作成
-# co <- makeCo(dimA[1], dimA[2])
-# co <- cbind(id, co)
-
-
-
-# #欠損値を削除（建物部分）
-# AA <- na.omit(AA)
-
-# # length(co)
-# # head(co)
-# # tail(co)
-# # length(AA)
-# # head(AA)
-# # tail(AA)
-# # length(UNITY)
-# # head(UNITY)
-# # tail(UNITY)
-
-# #データの結合
-# pt1 <- merge(co, AA)
-# pt <- merge(pt1, UNITY)
-# #UNITYデータの欠損値の置換
-# pt$UNITY[is.na(pt$UNITY)]<-0
-
-# head(pt)
-
-# print("Preprocessing is finished")
-
-# #バンド幅
-# # bw <- gwr.sel(AA ~ UNITY , data=pt, coords=cbind(pt$LON, pt$LAT))
-# # bw
-
-# gauss <- gwr(AA ~ UNITY, data=pt,coords=cbind(pt$LON, pt$LAT), bandwidth=5)
-# gauss
-# print("fin")
+# pdf("RasCorS_9.pdf")
+# a <- rasterCorrelation(A, B, s = 9, type = "spearman")
+# plot(a)
+# plot(A)
+# dev.off()
